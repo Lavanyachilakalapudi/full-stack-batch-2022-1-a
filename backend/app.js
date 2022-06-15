@@ -15,13 +15,9 @@ app.get("/", function (req, res) {
     res.send("Hellooo");
 })
 
-app.post("/register", body('username').not().isEmpty(),body('email').isEmail(),body('password').isLength({min:3,max:9})
-,body('phoneno').isMobilePhone(), async function (req, res) {
+app.post("/register",async function (req, res) {
 try{
-    const errors=validationResult(req);
-    if(!errors.isEmpty()){
-        return res.status(400).json({errors:errors.array()})
-    }
+    
     const passwordHash = bcrypt.hashSync(req.body.password, 10);
     User.create({ username: req.body.username, email: req.body.email, password: passwordHash, phoneno: req.body.phoneno })
         .then((data) => 
@@ -52,12 +48,8 @@ app.get("/getfriends/:id", async function (req, res) {
         .catch((err) => res.send(err))
 })
 
-app.post("/authenticate", body('email').isEmail(),body('password').isLength({min:3,max:9}),(req, res) => {
+app.post("/authenticate",(req, res) => {
 
-    const errors=validationResult(req)
-    if(!errors.isEmpty()){
-        res.status(400).json({errors:errors.array()})
-    }
     const { email, password } = req.body;
     User.findOne({
         where: {
