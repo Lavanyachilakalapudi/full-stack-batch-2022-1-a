@@ -61,6 +61,10 @@ export const addUser = (user) => {
             },
             body: JSON.stringify(user),
         });
+        const res=await response.json();
+        if(res.errors){
+            alert("validation error")
+        }
     };
 };
 
@@ -99,12 +103,8 @@ export const sendOTP=(phoneno)=>{
         })
         const res=await response.json();
         if(res.success){
-            alert("opt send")
             dispatch(setSendotp(true))
         }
-        // else{
-        //     alert(res.message)
-        // }
     }
 }
 
@@ -122,9 +122,6 @@ export const verifyOTP=(details)=>{
         if(res.success){     
             dispatch(setIsAuthenticated(true));
             localStorage.setItem('user',JSON.stringify(res.user));
-        }
-        else{
-            alert(res.message)
         }
     }
 }

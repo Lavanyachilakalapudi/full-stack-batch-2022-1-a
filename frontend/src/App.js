@@ -6,7 +6,7 @@ import Mobilenumber from './components/mobilelogin';
 function App() {
   return (
     <div>
-     <Login />
+     <Mobilenumber />
     </div>
   );
 }

@@ -4,8 +4,10 @@ var Cors = require('cors');
 app.use(Cors());
 var bodyparser = require('body-parser')
 app.use(bodyparser.json())
+require('dotenv').config()
 app.use(bodyparser.urlencoded({ extended: false }))
 const { User, Friend, Expense, Participant, Group, Member, Activity } = require('./models');
+const client = require('twilio')(process.env.accountSid, process.env.authToken);
 const db = require('./models/index');
 var jsonwebtoken = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -15,9 +17,13 @@ app.get("/", function (req, res) {
     res.send("Hellooo");
 })
 
-app.post("/register",async function (req, res) {
+app.post("/register",body('email').isEmail(),async function (req, res) {
 try{
     
+    const errors=validationResult(req);
+    if(!errors.isEmpty()){
+        res.status(400).json({success:false,errors:errors.array()})
+    }
     const passwordHash = bcrypt.hashSync(req.body.password, 10);
     User.create({ username: req.body.username, email: req.body.email, password: passwordHash, phoneno: req.body.phoneno })
         .then((data) => 
@@ -136,7 +142,11 @@ app.post("/newFriend/:email/:id",function (req, res) {
         })
 })
 
-app.post("/newExpense/:userid",function (req, res) {
+app.post("/newExpense/:userid",body('exp_name').isString(),function (req, res) {
+    const errors=validationResult(req)
+    if(!errors.isEmpty()){
+        res.status(400).json({success:false,errors:errors.array()})
+    }
     const userid = req.params.userid
     if (req.body.gid == null) {
         let expense = {
@@ -434,11 +444,6 @@ app.post("/settleUp/:id", async function (req, res) {
 
 })
 
-const accountSid = "AC230cfc897b89640ea2e58f0eab64a900";
-const authToken = "12737745d7683e6e7ccef2485e62b450";
-const client = require('twilio')(accountSid, authToken);
-const serviceId = "VA52f3ec0488e3116ec1f1fd8b293652f4"
-
 app.post("/sendVerificationCode", (req, res) => {
     console.log("phoneno", req.body.phoneno)
     const phoneno = req.body.phoneno
@@ -456,7 +461,7 @@ app.post("/sendVerificationCode", (req, res) => {
             }
             else{
 
-                client.verify.services(serviceId)
+                client.verify.services(process.env.serviceId)
                 .verifications
                 .create({ to: '+91' + phoneno, channel: 'sms' })
                 .then(verification => {
@@ -487,7 +492,7 @@ app.post("/verifyOTP", function (req, res) {
         },
     })
         .then((user) => {
-            client.verify.services(serviceId)
+            client.verify.services(process.env.serviceId)
                 .verificationChecks
                 .create({ to: '+91' + phoneno, code: otp })
                 .then(verification_check => {

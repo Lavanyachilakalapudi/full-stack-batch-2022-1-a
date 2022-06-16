@@ -48,7 +48,10 @@ export const addExpense=(expense)=>{
             body:JSON.stringify(expense)
         })
         const res= await response.json();
-        if(res.success){
+        if(res.errors){
+            alert("validation error")
+        }
+        else if(res.success){
             dispatch(getExpenses(user.id))
         }
     }

@@ -23,7 +23,7 @@ function Home() {
                         <button class="btn btn-primary ml-5" onClick={() => {
                             window.localStorage.clear()
                             dispatch(setIsAuthenticated(false));
-                            navigate("/login");
+                            navigate("/mobilelogin");
                         }}>Logout</button>
                     </form>
                 </div>
